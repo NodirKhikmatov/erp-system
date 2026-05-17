@@ -15,6 +15,13 @@ COPY packages/eslint-config packages/eslint-config
 
 RUN pnpm install --frozen-lockfile
 COPY . .
+
+# Brauzer paketi uchun (ixtiyoriy); bo‘lmasa runtime proxy / SSR env bilan ishlaydi.
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+
 RUN pnpm turbo run build --filter=web
 
 FROM node:20-alpine AS runner
