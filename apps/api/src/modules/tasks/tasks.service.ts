@@ -153,7 +153,8 @@ export class TasksService {
       return;
     }
     const who = task.assignee?.displayName ?? "Ishchi";
-    const ordLabel = order.orderNumber?.trim() || "—";
+    const trimmedOrder = order.orderNumber?.trim() ?? "";
+    const ordLabel = trimmedOrder.length > 0 ? trimmedOrder : "—";
     void this.telegram.notifyWorkerText(
       creatorId,
       `✅ ${who} vazifani tugatdi: «${task.title}»\nBuyurtma: ${ordLabel}`,
