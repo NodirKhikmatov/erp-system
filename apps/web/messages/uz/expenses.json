@@ -1,0 +1,23 @@
+{
+  "title": "Xarajatlar",
+  "body": "Material, maosh, transport va boshqa xarajatlarni buyurtma bo‘yicha kuzating. Foyda buyurtma narxidan xarajatlar ayirilganda avtomatik hisoblanadi.",
+  "totalsNote": "Jami ko‘rsatkichlar dashboard analitikasi bilan mos (bekor qilinmagan buyurtmalar).",
+  "restricted": "Bu bo‘lim faqat menejer va administrator uchun.",
+  "fieldTitle": "Nom",
+  "fieldAmount": "Summa",
+  "fieldCategory": "Kategoriya",
+  "fieldNotes": "Izoh",
+  "catMATERIAL": "Materiallar",
+  "catSALARY": "Maosh",
+  "catTRANSPORT": "Transport",
+  "catOTHER": "Boshqa",
+  "saveExpense": "Saqlash",
+  "toastSaved": "Xarajat qo‘shildi.",
+  "toastError": "Xarajat saqlanmadi.",
+  "amountRequired": "Xarajat summasini kiriting.",
+  "amountInvalid": "Musbat son kiriting (o‘nlik lar bilan bo‘lishi mumkin).",
+  "noneOnOrder": "Bu buyurtmada hali xarajat yo‘q.",
+  "tableHeading": "So‘nggi xarajatlar",
+  "colOrder": "Buyurtma",
+  "colWhen": "Vaqt"
+}

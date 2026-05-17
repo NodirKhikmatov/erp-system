@@ -1,0 +1,23 @@
+{
+  "api": {
+    "unknown": "Xatolik yuz berdi. Qayta urinib ko‘ring.",
+    "network": "Tarmoq xatosi. Ulanishni tekshiring.",
+    "unauthorized": "Siz tizimga kirmagansiz yoki sessiya tugagan.",
+    "forbidden": "Bu amal uchun ruxsatingiz yo‘q.",
+    "notFound": "Obyekt topilmadi.",
+    "conflict": "Amal joriy holat bilan ziddiyat tug‘diradi.",
+    "validation": "Ba’zi maydonlar noto‘g‘ri. Formani tekshiring.",
+    "rateLimited": "Juda ko‘p so‘rov. Iltimos, kuting."
+  },
+  "codes": {
+    "BAD_REQUEST": "Noto‘g‘ri so‘rov.",
+    "UNAUTHORIZED": "Autentifikatsiya talab qilinadi.",
+    "FORBIDDEN": "Kirish rad etildi.",
+    "NOT_FOUND": "Topilmadi.",
+    "CONFLICT": "Mavjud ma’lumot bilan ziddiyat.",
+    "INTERNAL_SERVER_ERROR": "Server xatosi. Keyinroq urinib ko‘ring."
+  },
+  "field": {
+    "generic": "Noto‘g‘ri qiymat."
+  }
+}

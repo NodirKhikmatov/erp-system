@@ -1,0 +1,25 @@
+{
+  "title": "Sozlamalar",
+  "subtitle": "Ish maydoni va bildirishnomalar.",
+  "profile": "Profil",
+  "notifications": "Bildirishnomalar",
+  "workspace": "Ish maydoni",
+  "language": "Til va mintaqa",
+  "placeholder": "Qo‘shimcha modullarni bu yerda koʻrasiz.",
+
+  "telegramTitle": "Telegram",
+  "telegramSubtitle": "Vazifa xabarlari; bot buyruqlari: /vazifalar, /bajarildi, /hisobot. Kod 10 ta belgi (raqamlar va a–f).",
+  "telegramGetCode": "Bog‘lash kodini olish",
+  "telegramCodeReady": "Kod tayyor — Telegramda yozing.",
+  "telegramUpstream": "API chiqish uchun kuting yoki ishlayotganini tekshiring (proxy 503).",
+  "telegramError": "Kod olinmadi. Yangilang yoki huquqingiz borligini tekshiring.",
+  "telegramExpires": "Yaroqlilik",
+  "telegramSteps": "Keyin Telegramda:",
+  "telegramStepBot": "Bot bilan shaxsiy chat oching.",
+  "telegramStepSend": "Bitta xabar: /start va probeldan keyin vebdagi 10 ta belgini yozing («CODE» so‘zi emas). Muddat ichida yozing (~15 daq).",
+
+  "telegramCopyStart": "«/start + kod» ni nusxalash",
+  "telegramCopied": "Nusxa olindi — Telegramga yuboring.",
+  "telegramCopyFail": "Nusxa olinmadi (brauzer ruxsatini tekshiring).",
+  "telegramHintBot": "Mahallida: TOKEN va NODE_ENV=development bo‘lsa, HTTPS yozmasangiz polling avtomatik. Ishlab chiqarish uchun TELEGRAM_WEBHOOK_BASE_URL va maxfiy kalit kerak (yoki telegramda eski webhook qolsa, API ishga tushganda webhook o‘chirib tashlanadi)."
+}

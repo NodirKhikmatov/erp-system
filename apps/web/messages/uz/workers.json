@@ -1,0 +1,17 @@
+{
+  "title": "Ishchilar",
+  "empty": "Foydalanuvchilar yo‘q.",
+  "restricted": "Bu bo‘lim faqat menejer va administrator uchun.",
+  "managerNote": "Foydalanuvchini bloklash yoki oʻchirish faqat administrator uchun.",
+  "role": "Rol",
+  "active": "Faol",
+  "inactive": "Nofaol",
+  "block": "Bloklash",
+  "unblock": "Faollashtirish",
+  "delete": "Oʻchirish",
+  "deleteConfirm": "{name} foydalanuvchisi oʻchirilsinmi? Ular tizimga kira olmaydi.",
+  "selfActionDenied": "O‘z akkauntingiz uchun ishlamaydi",
+  "toastBlocked": "Foydalanuvchi bloklandi.",
+  "toastUnblocked": "Foydalanuvchi faollashtirildi.",
+  "toastDeleted": "Foydalanuvchi o‘chirildi."
+}

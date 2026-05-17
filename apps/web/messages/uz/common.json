@@ -1,0 +1,105 @@
+{
+  "meta": {
+    "title": "Mebel ishlab chiqarish ERP",
+    "description": "Mebel ishlab chiqarish operatsiyalari uchun boshqaruv paneli"
+  },
+  "loading": "Yuklanmoqda…",
+  "error": "Xatolik yuz berdi.",
+  "retry": "Qayta urinish",
+  "ok": "OK",
+  "cancel": "Bekor qilish",
+  "save": "Saqlash",
+  "delete": "O‘chirish",
+  "edit": "Tahrirlash",
+  "close": "Yopish",
+  "search": "Qidirish",
+  "filter": "Filtr",
+  "actions": "Harakatlar",
+  "noResults": "Natija yo‘q",
+  "theme": {
+    "light": "Yorug‘ rejim",
+    "dark": "Qorong‘i rejim",
+    "toggle": "Rejimni almashtirish"
+  },
+  "aria": {
+    "menu": "Menyu",
+    "expandSidebar": "Yon panelni kengaytirish",
+    "collapseSidebar": "Yon panelni yig‘ish",
+    "languageMenu": "Tilni tanlash",
+    "openInLocale": "{locale} tilida ochish"
+  },
+  "locale": {
+    "label": "Til",
+    "en": "English",
+    "uz": "O‘zbekcha"
+  },
+  "home": {
+    "kicker": "Mebel ishlab chiqarish ERP",
+    "title": "Ishlab chiqarish boshqaruv paneli",
+    "intro": "Bu loyiha bitta kod bazasida veb-sahifa va server API ni birlashtiradi. Server modullarini kengaytirish uchun dasturchilar papkasi:",
+    "cardServerTitle": "Server holati",
+    "cardApiLabel": "API manzili:",
+    "cardPathsPrefix": "Tekshiruv yo‘li:",
+    "cardPathsMiddle": "— API hujjatlari:",
+    "healthCta": "Salomatlikni tekshirish (4000-port)",
+    "cardStatesTitle": "Holatlar (tizim kodlari)",
+    "orderLabel": "Buyurtma",
+    "taskLabel": "Vazifa",
+    "systemCode": "tizim kodi",
+    "envHint": "Jonli ulanish uchun `.env.local` faylida manzilni ko‘rsating",
+    "appCta": "Ilovani ochish"
+  },
+  "notFound": {
+    "code": "404",
+    "title": "Sahifa topilmadi",
+    "body": "Siz so‘ragan manzil mavjud emas yoki ko‘chirilgan bo‘lishi mumkin.",
+    "cta": "Bosh sahifaga qaytish"
+  },
+  "nav": {
+    "dashboard": "Boshqaruv",
+    "orders": "Buyurtmalar",
+    "tasks": "Vazifalar",
+    "worker": "Mening ishim",
+    "workers": "Ishchilar",
+    "expenses": "Xarajatlar",
+    "reports": "Hisobotlar",
+    "settings": "Sozlamalar"
+  },
+  "table": {
+    "empty": "Hozircha ma’lumot yo‘q.",
+    "rowsPerPage": "Qatorlar soni",
+    "pageOf": "{total} dan {page}-sahifa",
+    "selectAll": "Hammasini tanlash"
+  },
+  "filters": {
+    "apply": "Filtrlarni qo‘llash",
+    "reset": "Tozalash",
+    "active": "Faol filtrlar"
+  },
+  "toast": {
+    "success": "Muvaffaqiyatli saqlandi.",
+    "error": "Amal bajarilmadi.",
+    "copied": "Buferga nusxalandi."
+  },
+  "upload": {
+    "pickImage": "Rasm yuklash…",
+    "uploading": "Yuklanmoqda…",
+    "success": "Rasm yuklandi.",
+    "successMany": "{count} ta rasm yuklandi.",
+    "failed": "Rasm yuklab bo‘lmadi.",
+    "typesHint": "JPEG, PNG, WebP, GIF, HEIC, HEIF, AVIF yoki BMP.",
+    "maxLines": "Eng ko‘pi bilan {max} ta rasm qo‘shish mumkin.",
+    "filteredNonImages": "{count} ta rasm bo‘lmagan fayl chiqarildi.",
+    "extraFilesIgnored": "Faqat bitta uchun: {count} ta qoʻshimcha tanlov chiqarildi.",
+    "batchLimited": "Bir partiyada {kept} tagacha — yangi safari {removed} tasini tanlang.",
+    "limitReached": "Rasm qoʻshish uchun boʻsh joy qolmagan.",
+    "truncatedToSlots": "Limit uchun {skipped} tasini chiqardik ({uploaded} ta yuklanadi).",
+    "partialOutcome": "{ok} ta tayyor, {fail} tasida xato.",
+    "dragDropHint": "Rasmlarni shu blokka qoʻllab uchiring yoki tugma bilan tanlang (bir martada koʻp fayl ham mumkin).",
+    "dropNoFiles": "Bu yerga rasm fayllarini tashlang — papka yoki boʻsh hudud ishlamaydi.",
+    "busyWait": "Hozirgi yuklash tugaguncha kuting.",
+    "blockedDisabled": "Hozir rasm tanlash/yuklash ishlamayapti (masalan, forma yuborayotganda).",
+    "pickEmpty": "Hech qanday fayl tanlanmadi.",
+    "notQueued": "Yuklash uchun navbat boʻsh."
+  }
+}

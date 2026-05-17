@@ -1,0 +1,24 @@
+{
+  "email": {
+    "required": "Email is required.",
+    "invalid": "Enter a valid email address."
+  },
+  "password": {
+    "required": "Password is required.",
+    "minLength": "Password must be at least {min} characters.",
+    "maxLength": "Password must be at most {max} characters."
+  },
+  "required": "This field is required.",
+  "uuid": "Invalid identifier format.",
+  "number": {
+    "invalid": "Enter a valid number.",
+    "min": "Must be at least {min}.",
+    "max": "Must be at most {max}."
+  },
+  "date": {
+    "invalid": "Enter a valid date."
+  },
+  "string": {
+    "max": "Must be at most {max} characters."
+  }
+}

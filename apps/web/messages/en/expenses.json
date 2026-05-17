@@ -1,0 +1,23 @@
+{
+  "title": "Expenses",
+  "body": "Track material, salary, transport, and other costs per order. Profit is computed automatically from order price minus expenses.",
+  "totalsNote": "Aggregate totals follow dashboard analytics (non-cancelled orders).",
+  "restricted": "This section is restricted to managers and admins.",
+  "fieldTitle": "Title",
+  "fieldAmount": "Amount",
+  "fieldCategory": "Category",
+  "fieldNotes": "Notes",
+  "catMATERIAL": "Materials",
+  "catSALARY": "Salary",
+  "catTRANSPORT": "Transport",
+  "catOTHER": "Other",
+  "saveExpense": "Save expense",
+  "toastSaved": "Expense recorded.",
+  "toastError": "Could not save expense.",
+  "amountRequired": "Enter the expense amount.",
+  "amountInvalid": "Enter a valid positive amount (decimals allowed).",
+  "noneOnOrder": "No expenses on this order yet.",
+  "tableHeading": "Recent expenses",
+  "colOrder": "Order",
+  "colWhen": "When"
+}

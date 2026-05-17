@@ -1,0 +1,10 @@
+{
+  "extends": "@furniture/typescript-config/base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "src",
+    "baseUrl": ".",
+    "verbatimModuleSyntax": false
+  },
+  "include": ["src/**/*.ts"]
+}

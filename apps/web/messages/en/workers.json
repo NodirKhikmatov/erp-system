@@ -1,0 +1,17 @@
+{
+  "title": "Workers",
+  "empty": "No workers found.",
+  "restricted": "This section is restricted to managers and admins.",
+  "managerNote": "Only administrators can block or remove user accounts.",
+  "role": "Role",
+  "active": "Active",
+  "inactive": "Inactive",
+  "block": "Block",
+  "unblock": "Unblock",
+  "delete": "Remove",
+  "deleteConfirm": "Remove {name} from the ERP? Their sessions will stop working.",
+  "selfActionDenied": "Not available on your own account",
+  "toastBlocked": "User blocked.",
+  "toastUnblocked": "User unblocked.",
+  "toastDeleted": "User removed."
+}

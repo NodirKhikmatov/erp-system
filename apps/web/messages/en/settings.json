@@ -1,0 +1,24 @@
+{
+  "title": "Settings",
+  "subtitle": "Workspace and notifications.",
+  "profile": "Profile",
+  "notifications": "Notifications",
+  "workspace": "Workspace",
+  "language": "Language & region",
+  "placeholder": "More settings will appear as modules ship.",
+
+  "telegramTitle": "Telegram",
+  "telegramSubtitle": "Task/order alerts plus /tasks, /report. The link code has 10 characters (digits 0–9 and a–f).",
+  "telegramGetCode": "Get link code",
+  "telegramCodeReady": "Code is ready — use it in Telegram.",
+  "telegramUpstream": "API is unreachable or still starting (proxy 503).",
+  "telegramError": "Could not get a code. Refresh or check your permissions.",
+  "telegramExpires": "Valid until",
+  "telegramSteps": "In Telegram:",
+  "telegramStepBot": "Open a private chat with your BotFather bot.",
+  "telegramStepSend": "Send ONE message: /start, a space, then the ten characters below (not the English word CODE). Valid about 15 minutes.",
+  "telegramCopyStart": "Copy /start command with code",
+  "telegramCopied": "Copied — paste it into Telegram.",
+  "telegramCopyFail": "Copy failed (check browser clipboard permission).",
+  "telegramHintBot": "Locally: TOKEN + NODE_ENV=development is enough (polling starts automatically unless a full webhook URL + secret are set). Production requires TELEGRAM_WEBHOOK_BASE_URL + secret; old webhooks are cleared when polling boots."
+}

@@ -1,0 +1,23 @@
+{
+  "api": {
+    "unknown": "Something went wrong. Try again.",
+    "network": "Network error. Check your connection.",
+    "unauthorized": "You are not signed in or your session expired.",
+    "forbidden": "You do not have permission for this action.",
+    "notFound": "The resource was not found.",
+    "conflict": "This action conflicts with the current state.",
+    "validation": "Some fields are invalid. Check the form.",
+    "rateLimited": "Too many requests. Please wait."
+  },
+  "codes": {
+    "BAD_REQUEST": "Invalid request.",
+    "UNAUTHORIZED": "Authentication required.",
+    "FORBIDDEN": "Access denied.",
+    "NOT_FOUND": "Not found.",
+    "CONFLICT": "Conflict with existing data.",
+    "INTERNAL_SERVER_ERROR": "Server error. Try again later."
+  },
+  "field": {
+    "generic": "Invalid value."
+  }
+}

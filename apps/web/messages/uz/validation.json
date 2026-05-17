@@ -1,0 +1,24 @@
+{
+  "email": {
+    "required": "Pochta manzili majburiy.",
+    "invalid": "To‘g‘ri elektron pochta kiriting."
+  },
+  "password": {
+    "required": "Parol majburiy.",
+    "minLength": "Parol kamida {min} belgidan iborat bo‘lishi kerak.",
+    "maxLength": "Parol ko‘pi bilan {max} belgidan iborat bo‘lishi mumkin."
+  },
+  "required": "Bu maydon majburiy.",
+  "uuid": "Noto‘g‘ri identifikator formati.",
+  "number": {
+    "invalid": "To‘g‘ri son kiriting.",
+    "min": "Kamida {min} bo‘lishi kerak.",
+    "max": "Ko‘pi bilan {max} bo‘lishi mumkin."
+  },
+  "date": {
+    "invalid": "To‘g‘ri sana kiriting."
+  },
+  "string": {
+    "max": "Ko‘pi bilan {max} belgi."
+  }
+}

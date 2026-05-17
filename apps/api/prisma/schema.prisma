@@ -1,0 +1,314 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ——— Sanab o‘tiladigan qiymatlar ———
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  WORKER
+}
+
+enum OrderStatus {
+  NEW
+  IN_PROGRESS
+  READY
+  DELIVERED
+  CANCELLED
+}
+
+enum TaskStatus {
+  PENDING
+  WORKING
+  DONE
+}
+
+enum TaskActivityType {
+  CREATED
+  STATUS_CHANGED
+  ASSIGNED
+  UPDATED
+  DELETED
+}
+
+enum ExpenseCategory {
+  MATERIAL
+  SALARY
+  TRANSPORT
+  OTHER
+}
+
+// ——— Asosiy modellar ———
+
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  email        String
+  passwordHash String?   @map("password_hash")
+  displayName  String    @map("display_name")
+  phone        String?
+  salary       Decimal?  @db.Decimal(18, 2)
+  role         UserRole  @default(WORKER)
+  isActive     Boolean   @default(true) @map("is_active")
+  /// Bir martalik Telegram bog‘lash kodi (veb-ilovadan so‘ralganda).
+  telegramLinkCode      String?   @unique @map("telegram_link_code")
+  telegramLinkExpiresAt DateTime? @map("telegram_link_expires_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  clientsCreated   Client[]       @relation("ClientCreator")
+  ordersCreated    Order[]        @relation("OrderCreator")
+  tasksAssigned    Task[]         @relation("TaskAssignee")
+  expensesRecorded Expense[]      @relation("ExpenseRecorder")
+  dailyLogs        DailyLog[]
+  telegramProfile  TelegramUser?
+  refreshTokens    RefreshToken[]
+  taskComments     TaskComment[]  @relation("TaskCommentAuthor")
+  taskActivities   TaskActivity[] @relation("TaskActivityActor")
+  dailyReports     DailyReport[]  @relation("DailyReportWorker")
+  activityLogs     ActivityLog[]  @relation("ActivityLogActor")
+
+  @@index([email, deletedAt], map: "user_email_deleted_idx")
+  @@index([role, deletedAt], map: "user_role_deleted_idx")
+  @@index([deletedAt], map: "user_deleted_at_idx")
+  @@map("users")
+}
+
+model Client {
+  id           String    @id @default(uuid()) @db.Uuid
+  name         String
+  companyName  String?   @map("company_name")
+  email        String?
+  phone        String?
+  address      String?   @db.Text
+  notes        String?   @db.Text
+  createdById  String?   @map("created_by_id") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  createdBy User?   @relation("ClientCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  orders    Order[]
+
+  @@index([name], map: "client_name_idx")
+  @@index([createdById, deletedAt], map: "client_creator_deleted_idx")
+  @@index([deletedAt], map: "client_deleted_at_idx")
+  @@map("clients")
+}
+
+model Order {
+  id               String      @id @default(uuid()) @db.Uuid
+  /// Ko‘rsatish uchun noyob raqam, masalan ORD-2026-00001
+  orderNumber      String?     @unique @map("order_number")
+  clientId         String      @map("client_id") @db.Uuid
+  createdById      String?     @map("created_by_id") @db.Uuid
+  status           OrderStatus @default(NEW)
+  title            String?
+  description      String?     @db.Text
+  dueDate          DateTime?   @map("due_date")
+  completedAt      DateTime?   @map("completed_at")
+  currency         String      @default("UZS")
+  totalAmount      Decimal?    @map("total_amount") @db.Decimal(18, 2)
+  prepaymentAmount Decimal?    @map("prepayment_amount") @db.Decimal(18, 2)
+  /// Namuna / loyiha rasmlari URL-lari (JSON massiv)
+  referenceImages  Json?       @map("reference_images")
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  deletedAt   DateTime?   @map("deleted_at")
+
+  client    Client    @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  createdBy User?     @relation("OrderCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  tasks     Task[]
+  expenses  Expense[]
+
+  @@index([clientId, status, deletedAt], map: "order_client_status_deleted_idx")
+  @@index([status, createdAt], map: "order_status_created_idx")
+  @@index([createdById, deletedAt], map: "order_creator_deleted_idx")
+  @@index([deletedAt], map: "order_deleted_at_idx")
+  @@map("orders")
+}
+
+model Task {
+  id          String     @id @default(uuid()) @db.Uuid
+  orderId     String     @map("order_id") @db.Uuid
+  assigneeId  String?    @map("assignee_id") @db.Uuid
+  title       String
+  description String?    @db.Text
+  status      TaskStatus @default(PENDING)
+  /// 0 = oddiy, yuqori = muhimroq
+  priority        Int        @default(0)
+  estimatedHours  Decimal?   @map("estimated_hours") @db.Decimal(6, 2)
+  sortOrder   Int        @default(0) @map("sort_order")
+  dueDate     DateTime?  @map("due_date")
+  startedAt   DateTime?  @map("started_at")
+  completedAt DateTime?  @map("completed_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  deletedAt   DateTime?  @map("deleted_at")
+
+  order    Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  assignee User? @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  comments TaskComment[]
+  activities TaskActivity[]
+  dailyReports DailyReport[]
+
+  @@index([orderId, status, deletedAt], map: "task_order_status_deleted_idx")
+  @@index([assigneeId, status, deletedAt], map: "task_assignee_status_deleted_idx")
+  @@index([deletedAt], map: "task_deleted_at_idx")
+  @@map("tasks")
+}
+
+model TaskComment {
+  id        String   @id @default(uuid()) @db.Uuid
+  taskId    String   @map("task_id") @db.Uuid
+  authorId  String   @map("author_id") @db.Uuid
+  body      String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  author User @relation("TaskCommentAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([taskId, createdAt], map: "task_comment_task_created_idx")
+  @@map("task_comments")
+}
+
+model TaskActivity {
+  id        String            @id @default(uuid()) @db.Uuid
+  taskId    String            @map("task_id") @db.Uuid
+  actorId   String?           @map("actor_id") @db.Uuid
+  type      TaskActivityType
+  meta      Json?
+  createdAt DateTime          @default(now()) @map("created_at")
+
+  task  Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  actor User? @relation("TaskActivityActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([taskId, createdAt], map: "task_activity_task_created_idx")
+  @@map("task_activities")
+}
+
+model Expense {
+  id            String          @id @default(uuid()) @db.Uuid
+  orderId       String?         @map("order_id") @db.Uuid
+  recordedById  String          @map("recorded_by_id") @db.Uuid
+  title         String?
+  category      ExpenseCategory
+  amount        Decimal         @db.Decimal(18, 2)
+  currency      String          @default("UZS")
+  description   String?         @db.Text
+  incurredOn    DateTime        @map("incurred_on") @db.Date
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  deletedAt     DateTime?       @map("deleted_at")
+
+  order       Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  recordedBy  User   @relation("ExpenseRecorder", fields: [recordedById], references: [id], onDelete: Restrict)
+
+  @@index([orderId, deletedAt], map: "expense_order_deleted_idx")
+  @@index([category, incurredOn], map: "expense_category_date_idx")
+  @@index([recordedById, deletedAt], map: "expense_recorder_deleted_idx")
+  @@index([deletedAt], map: "expense_deleted_at_idx")
+  @@map("expenses")
+}
+
+model DailyLog {
+  id           String    @id @default(uuid()) @db.Uuid
+  userId       String    @map("user_id") @db.Uuid
+  logDate      DateTime  @map("log_date") @db.Date
+  summary      String?   @db.Text
+  hoursWorked  Decimal?  @map("hours_worked") @db.Decimal(5, 2)
+  metadata     Json?
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, logDate, deletedAt], map: "daily_log_user_date_deleted_idx")
+  @@index([deletedAt], map: "daily_log_deleted_at_idx")
+  @@map("daily_logs")
+}
+
+model DailyReport {
+  id          String    @id @default(uuid()) @db.Uuid
+  workerId    String    @map("worker_id") @db.Uuid
+  taskId      String?   @map("task_id") @db.Uuid
+  message     String    @db.Text
+  /// Asosiy rasm URL (CDN / obyekt saqlash)
+  photoUrl    String?   @map("photo_url") @db.Text
+  /// Qo‘shimcha rasmlar (JSON massiv: string[])
+  extraImages Json?     @map("extra_images")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  worker User  @relation("DailyReportWorker", fields: [workerId], references: [id], onDelete: Cascade)
+  task   Task? @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([workerId, createdAt, deletedAt], map: "daily_report_worker_created_deleted_idx")
+  @@index([taskId, deletedAt], map: "daily_report_task_deleted_idx")
+  @@index([deletedAt], map: "daily_report_deleted_at_idx")
+  @@map("daily_reports")
+}
+
+/// Buyurtma / vazifa / hisobot bo‘yicha audit jurnal.
+model ActivityLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String?  @map("actor_id") @db.Uuid
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id") @db.Uuid
+  meta       Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  actor User? @relation("ActivityLogActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId, createdAt], map: "activity_log_entity_created_idx")
+  @@index([createdAt], map: "activity_log_created_idx")
+  @@map("activity_logs")
+}
+
+model TelegramUser {
+  id                 String    @id @default(uuid()) @db.Uuid
+  userId             String    @unique @map("user_id") @db.Uuid
+  telegramId         BigInt    @unique @map("telegram_id")
+  chatId             BigInt?   @map("chat_id")
+  username           String?
+  firstName          String?   @map("first_name")
+  lastName           String?   @map("last_name")
+  languageCode       String?   @map("language_code")
+  isBlocked          Boolean   @default(false) @map("is_blocked")
+  lastInteractionAt  DateTime? @map("last_interaction_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([telegramId], map: "telegram_user_telegram_id_idx")
+  @@index([deletedAt], map: "telegram_user_deleted_at_idx")
+  @@map("telegram_users")
+}
+
+/// Yangilanish jetonlari (xeshlangan, aylantirish va chiqishda bekor qilish).
+model RefreshToken {
+  id           String    @id @default(uuid()) @db.Uuid
+  userId       String    @map("user_id") @db.Uuid
+  tokenHash    String    @map("token_hash")
+  expiresAt    DateTime  @map("expires_at")
+  revokedAt    DateTime? @map("revoked_at")
+  replacedById String?   @map("replaced_by_id") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt], map: "refresh_token_user_exp_idx")
+  @@index([tokenHash], map: "refresh_token_hash_idx")
+  @@map("refresh_tokens")
+}

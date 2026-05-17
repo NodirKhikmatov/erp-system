@@ -1,0 +1,105 @@
+{
+  "meta": {
+    "title": "Furniture production ERP",
+    "description": "Operations dashboard for furniture manufacturing"
+  },
+  "loading": "Loading…",
+  "error": "Something went wrong.",
+  "retry": "Retry",
+  "ok": "OK",
+  "cancel": "Cancel",
+  "save": "Save",
+  "delete": "Delete",
+  "edit": "Edit",
+  "close": "Close",
+  "search": "Search",
+  "filter": "Filter",
+  "actions": "Actions",
+  "noResults": "No results",
+  "theme": {
+    "light": "Light mode",
+    "dark": "Dark mode",
+    "toggle": "Toggle theme"
+  },
+  "aria": {
+    "menu": "Menu",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "languageMenu": "Choose language",
+    "openInLocale": "Open in {locale}"
+  },
+  "locale": {
+    "label": "Language",
+    "en": "English",
+    "uz": "O‘zbekcha"
+  },
+  "home": {
+    "kicker": "Furniture production ERP",
+    "title": "Production control dashboard",
+    "intro": "This project combines the website and server API in one codebase. Developer folder for extending server modules:",
+    "cardServerTitle": "Server status",
+    "cardApiLabel": "API base URL:",
+    "cardPathsPrefix": "Health check path:",
+    "cardPathsMiddle": "— API docs:",
+    "healthCta": "Open health check (port 4000)",
+    "cardStatesTitle": "Status codes (system)",
+    "orderLabel": "Order",
+    "taskLabel": "Task",
+    "systemCode": "system code",
+    "envHint": "Set the URL in `.env.local` for live API access",
+    "appCta": "Open application"
+  },
+  "notFound": {
+    "code": "404",
+    "title": "Page not found",
+    "body": "The address you requested does not exist or may have moved.",
+    "cta": "Back to home"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "orders": "Orders",
+    "tasks": "Tasks",
+    "worker": "My work",
+    "workers": "Workers",
+    "expenses": "Expenses",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "table": {
+    "empty": "Nothing to show yet.",
+    "rowsPerPage": "Rows per page",
+    "pageOf": "Page {page} of {total}",
+    "selectAll": "Select all"
+  },
+  "filters": {
+    "apply": "Apply filters",
+    "reset": "Reset",
+    "active": "Active filters"
+  },
+  "toast": {
+    "success": "Saved successfully.",
+    "error": "Could not complete the action.",
+    "copied": "Copied to clipboard."
+  },
+  "upload": {
+    "pickImage": "Upload image…",
+    "uploading": "Uploading…",
+    "success": "Image uploaded.",
+    "successMany": "{count} images uploaded.",
+    "failed": "Could not upload the image.",
+    "typesHint": "JPEG, PNG, WebP, GIF, HEIC, HEIF, AVIF, or BMP.",
+    "maxLines": "You can add at most {max} images.",
+    "filteredNonImages": "Skipped {count} non-image file(s).",
+    "extraFilesIgnored": "{count} extra selection(s) ignored (single image only here).",
+    "batchLimited": "Only {kept} at a time — try again with the remaining {removed}.",
+    "limitReached": "No slots left for more images.",
+    "truncatedToSlots": "{skipped} skipped due to limit; uploading {uploaded}.",
+    "partialOutcome": "{ok} succeeded, {fail} failed.",
+    "dragDropHint": "Drop images here or use the button (multi-select supported).",
+    "dropNoFiles": "Drop image files here — folders or empty drops do not upload.",
+    "busyWait": "Wait for the current upload to finish.",
+    "blockedDisabled": "Image upload is unavailable right now (for example while submitting).",
+    "pickEmpty": "No file was selected.",
+    "notQueued": "Nothing was queued for upload."
+  }
+}

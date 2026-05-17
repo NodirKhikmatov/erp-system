@@ -1,0 +1,46 @@
+{
+  "name": "mebel-erp",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "npx turbo run build",
+    "dev": "npx turbo run dev",
+    "lint": "npx turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "typecheck": "npx turbo run typecheck",
+    "test:e2e": "pnpm --filter web test:e2e",
+    "test:e2e:install": "pnpm --filter web exec playwright install chromium",
+    "verify": "pnpm typecheck && pnpm lint && pnpm --filter api test",
+    "verify:all": "pnpm verify && pnpm build",
+    "clean:dev": "rm -rf \"apps/web/.next\" \"apps/api/dist\"",
+    "dev:fresh": "pnpm clean:dev && pnpm dev",
+    "prepare": "husky",
+    "db:up": "docker compose up -d postgres",
+    "db:bootstrap": "docker compose up -d postgres && pnpm --filter api exec prisma migrate deploy && pnpm --filter api exec prisma db seed",
+    "db:generate": "cd apps/api && npx prisma generate",
+    "db:migrate": "cd apps/api && npx prisma migrate dev",
+    "db:push": "cd apps/api && npx prisma db push",
+    "db:studio": "cd apps/api && npx prisma studio",
+    "db:seed": "cd apps/api && npx prisma db seed"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@furniture/eslint-config": "workspace:*",
+    "@furniture/typescript-config": "workspace:*",
+    "eslint": "^9.17.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  }
+}
