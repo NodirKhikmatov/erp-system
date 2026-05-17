@@ -19,7 +19,7 @@ type LinkCodePayload = {
   expiresAt: string;
 };
 
-export function SettingsTelegramLinkCard(): JSX.Element {
+export function SettingsTelegramLinkCard() {
   const t = useTranslations("settings");
   const formatter = useFormatter();
   const [code, setCode] = useState<string | null>(null);

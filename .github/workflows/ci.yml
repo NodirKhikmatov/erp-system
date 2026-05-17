@@ -12,8 +12,6 @@ concurrency:
 
 env:
   HUSKY: "0"
-  # GitHub Actions: checkout/setup-node ichki Node 20 ogohlantirishini oldini olish (2026).
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   verify:
@@ -27,7 +25,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: pnpm
 
       - name: Install dependencies
