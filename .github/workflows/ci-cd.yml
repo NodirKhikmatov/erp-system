@@ -1,7 +1,9 @@
 # Deploy qachon ishlaydi:
-# - Qo'lda (Actions → CI/CD → Run workflow): mode ni "ci_push_then_vultr" yoki "vultr_compose_only" tanlang.
-# - Push dan keyin avtomatik: Repo → Settings → Variables → VULTR_AUTO_DEPLOY = true (optional).
-# Eslatma: Faqat "push" bilan ishga tushsa deploy ishlamaydi — mode va/o'zgaruvchini tekshiring.
+# - main/master ga PUSH — verify → docker → Vultr (avtomatik).
+# - Qo'lda (Actions → CI/CD → Run workflow): mode ni tanlang
+#     ci_push_then_vultr — to'liq (default).
+#     ci_push_images    — faqat GHCR ga push, deploysiz.
+#     vultr_compose_only — faqat serverda compose pull/up (CI/Docker yo'q).
 
 name: CI/CD
 
@@ -132,8 +134,7 @@ jobs:
         (github.event_name == 'workflow_dispatch' && inputs.mode == 'ci_push_then_vultr') ||
         (
           github.event_name == 'push' &&
-          github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
-          vars.VULTR_AUTO_DEPLOY == 'true'
+          (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         )
       )
     runs-on: ubuntu-latest
