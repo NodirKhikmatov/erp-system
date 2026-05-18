@@ -141,6 +141,27 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Sanity check — qiymatlar qayerda?
+        env:
+          S_HOST: ${{ secrets.VULTR_HOST }}
+          V_HOST: ${{ vars.VULTR_HOST }}
+          S_USER: ${{ secrets.VULTR_USER }}
+          V_USER: ${{ vars.VULTR_USER }}
+          S_PATH: ${{ secrets.VULTR_DEPLOY_PATH }}
+          V_PATH: ${{ vars.VULTR_DEPLOY_PATH }}
+        run: |
+          echo "VULTR_HOST: secrets=$( [ -n "$S_HOST" ] && echo SET || echo empty ), vars=$( [ -n "$V_HOST" ] && echo SET || echo empty )"
+          echo "VULTR_USER: secrets=$( [ -n "$S_USER" ] && echo SET || echo empty ), vars=$( [ -n "$V_USER" ] && echo SET || echo empty )"
+          echo "VULTR_DEPLOY_PATH: secrets=$( [ -n "$S_PATH" ] && echo SET || echo empty ), vars=$( [ -n "$V_PATH" ] && echo SET || echo empty )"
+          if [ -z "$S_HOST" ] && [ -n "$V_HOST" ]; then
+            echo "::error::Qiymatlar Variables tab da. Ularni Secrets tab ga ko'chiring (Settings → Secrets and variables → Actions → Secrets)."
+            exit 1
+          fi
+          if [ -z "$S_HOST" ]; then
+            echo "::error::VULTR_HOST hech qayerda yo'q. Repository secrets ga qo'shing."
+            exit 1
+          fi
+
       - name: Vultr deploy (Docker dan keyin)
         uses: ./.github/actions/vultr-ssh-deploy
         with:
