@@ -50,34 +50,63 @@ runs:
         echo "deploy_root=$dr" >> "$GITHUB_OUTPUT"
 
     # Multiline kalitni `key:` orqali berish ba'zan buziladi — fayl + key_path ishonchliroq.
+    # Ba'zan Secret bir qator + literal \n bo'ladi; ssh.ParsePrivateKey xato: "ssh: no key found".
     - id: write_ssh_key
       shell: bash
       env:
         SSH_KEY: ${{ inputs.ssh_key }}
       run: |
+        set -euo pipefail
         keyfile="${RUNNER_TEMP}/vultr_deploy.key"
-        printf '%s\n' "$SSH_KEY" | sed 's/\r$//' > "$keyfile"
-        chmod 600 "$keyfile"
-        if ! grep -qE 'BEGIN (OPENSSH|RSA|EC) PRIVATE KEY' "$keyfile"; then
-          echo "::error::VULTR_SSH_KEY kaliti noto'g'ri (BEGIN ... PRIVATE KEY yo'q). GitHub Secret ga ~/.ssh/vultr_deploy faylining TO'LIQ matnini qo'ying."
+        write_raw() { printf '%s\n' "$SSH_KEY" | sed 's/\r$//' > "$keyfile"; }
+        write_esc() { printf '%b' "$SSH_KEY" | sed 's/\r$//' > "$keyfile"; }
+        try_validate() {
+          chmod 600 "$keyfile"
+          ssh-keygen -y -f "$keyfile" -P '' >/dev/null 2>&1
+        }
+        write_raw
+        if ! try_validate; then
+          write_esc
+        fi
+        if ! try_validate; then
+          echo "::error::VULTR_SSH_KEY OpenSSH kaliti emas yoki buzilgan (ssh-keygen o'qiy olmadi)."
+          echo "::error::GitHub Secret ga ~/.ssh/vultr_deploy ning TO'LIQ ko'chirmasini qo'ying (bir necha qator, -----BEGIN ... -----END ...)."
+          echo "::notice::Diagnostika: bayt=$(wc -c < "$keyfile"), qatorlar=$(wc -l < "$keyfile")"
           exit 1
         fi
-        echo "path=$keyfile" >> "$GITHUB_OUTPUT"
+        if ! grep -qE 'BEGIN (OPENSSH|RSA|EC) PRIVATE KEY' "$keyfile"; then
+          echo "::error::VULTR_SSH_KEY BEGIN ... PRIVATE KEY bilan boshlanishi kerak."
+          exit 1
+        fi
+        echo "key_file=$keyfile" >> "$GITHUB_OUTPUT"
 
+    # drone-ssh (appleboy) ba'zi kalitlarda golang ssh.ParsePrivateKey bilan xato beradi.
+    # Runner dagi OpenSSH — Mac dagi `ssh -i` bilan bir xil.
     - name: SSH — compose pull/up
-      uses: appleboy/ssh-action@v1
-      with:
-        host: ${{ inputs.host }}
-        username: ${{ inputs.username }}
-        key_path: ${{ steps.write_ssh_key.outputs.path }}
-        script: |
-          set -euo pipefail
-          ROOT="${{ steps.sanitize_paths.outputs.deploy_root }}"
-          if [ -z "$ROOT" ] || [ ! -d "$ROOT/deploy" ]; then
-            echo "::error::Serverda yo'l yo'q yoki deploy papkasi topilmadi: $ROOT/deploy"
-            exit 1
-          fi
-          echo "${{ inputs.ghcr_token }}" | docker login ghcr.io -u "${{ inputs.ghcr_username }}" --password-stdin
-          cd "$ROOT/deploy"
-          docker compose -f docker-compose.prod.yml pull
-          docker compose -f docker-compose.prod.yml up -d --remove-orphans
+      shell: bash
+      env:
+        KEY_FILE: ${{ steps.write_ssh_key.outputs.key_file }}
+        SSH_HOST: ${{ inputs.host }}
+        SSH_USER: ${{ inputs.username }}
+        DEPLOY_ROOT: ${{ steps.sanitize_paths.outputs.deploy_root }}
+        GHCR_TOKEN: ${{ inputs.ghcr_token }}
+        GHCR_USERNAME: ${{ inputs.ghcr_username }}
+      run: |
+        set -euo pipefail
+        if [ -z "${KEY_FILE:-}" ] || [ ! -f "$KEY_FILE" ]; then
+          echo "::error::SSH kalit fayli topilmadi (write_ssh_key chiqishi bo'sh)."
+          exit 1
+        fi
+        shell_quote() { printf '%q' "$1"; }
+        {
+          printf '%s\n' 'set -euo pipefail'
+          printf '%s\n' "ROOT=$(shell_quote "$DEPLOY_ROOT")"
+          printf '%s\n' 'if [ ! -d "$ROOT/deploy" ]; then echo "::error::Deploy path missing on server: $ROOT/deploy"; exit 1; fi'
+          printf '%s\n' "echo $(shell_quote "$GHCR_TOKEN") | docker login ghcr.io -u $(shell_quote "$GHCR_USERNAME") --password-stdin"
+          printf '%s\n' 'cd "$ROOT/deploy"'
+          printf '%s\n' 'docker compose -f docker-compose.prod.yml pull'
+          printf '%s\n' 'docker compose -f docker-compose.prod.yml up -d --remove-orphans'
+        } | ssh -i "$KEY_FILE" \
+          -o IdentitiesOnly=yes \
+          -o StrictHostKeyChecking=accept-new \
+          "${SSH_USER}@${SSH_HOST}" bash -s
