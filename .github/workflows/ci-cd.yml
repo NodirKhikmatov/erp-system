@@ -1,3 +1,8 @@
+# Deploy qachon ishlaydi:
+# - Qo'lda (Actions → CI/CD → Run workflow): mode ni "ci_push_then_vultr" yoki "vultr_compose_only" tanlang.
+# - Push dan keyin avtomatik: Repo → Settings → Variables → VULTR_AUTO_DEPLOY = true (optional).
+# Eslatma: Faqat "push" bilan ishga tushsa deploy ishlamaydi — mode va/o'zgaruvchini tekshiring.
+
 name: CI/CD
 
 on:
@@ -10,14 +15,15 @@ on:
     inputs:
       mode:
         description: |
-          Qo'lda ishga tushirish rejimi (tanlang).
-          vultr_compose_only — faqat serverda pull/up (verify/docker yo'q).
+          ci_push_then_vultr — tekshiruv + Docker, keyin Vultr SSH (maslahat: ko'pincha shuni tanlang).
+          ci_push_images — faqat CI va GHCR (Vultr yo'q).
+          vultr_compose_only — faqat SSH pull/up (rasmlar allaqachon GHCR da).
         type: choice
         required: true
-        default: ci_push_images
+        default: ci_push_then_vultr
         options:
-          - ci_push_images
           - ci_push_then_vultr
+          - ci_push_images
           - vultr_compose_only
 
 concurrency:
@@ -33,7 +39,6 @@ permissions:
 
 jobs:
   verify:
-    # Qo'lda: vultr_compose_only da tekshiruv kerak emas
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.mode != 'vultr_compose_only' }}
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +64,6 @@ jobs:
 
   docker:
     needs: verify
-    # PR da docker yo'q; qo'lda vultr_compose_only da ham yo'q
     if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.mode != 'vultr_compose_only') }}
     runs-on: ubuntu-latest
     permissions:
@@ -121,12 +125,22 @@ jobs:
 
   deploy-vultr-after-docker:
     needs: docker
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'ci_push_then_vultr' }}
+    if: |
+      always() &&
+      needs.docker.result == 'success' &&
+      (
+        (github.event_name == 'workflow_dispatch' && inputs.mode == 'ci_push_then_vultr') ||
+        (
+          github.event_name == 'push' &&
+          github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
+          vars.VULTR_AUTO_DEPLOY == 'true'
+        )
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
 
-      - name: Vultr deploy
+      - name: Vultr deploy (Docker dan keyin)
         uses: ./.github/actions/vultr-ssh-deploy
         with:
           host: ${{ secrets.VULTR_HOST }}
@@ -137,7 +151,6 @@ jobs:
           deploy_path: ${{ secrets.VULTR_DEPLOY_PATH }}
 
   deploy-vultr-only:
-    # verify/docker dan mustaqil — skipped bo'lmasligi uchun alohida job
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'vultr_compose_only' }}
     runs-on: ubuntu-latest
     steps:

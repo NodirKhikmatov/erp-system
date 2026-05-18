@@ -1,6 +1,12 @@
-# Vultr (yoki boshqa VPS): bu papkadan ishga tushiring.
-#   cd deploy && cp env.prod.example .env && nano .env
-#   docker compose -f docker-compose.prod.yml up -d
+# Ishlatish:
+#
+# A) VPS da faqat bu stack + avtomatik HTTPS (Caddy 80/443):
+#    docker compose -f docker-compose.prod.yml --profile tls-caddy up -d
+#
+# B) Tashqida allaqachon nginx (boshqa sayt 80/443 da) — Caddy ISHLATMASLIK:
+#    docker compose -f docker-compose.prod.yml up -d
+#    Keyin nginx ga deploy/nginx-mebel-erp.example.conf ga o‘xshash server_name lar qo‘shing
+#    (proxy → 127.0.0.1:WEB_PUBLISH_PORT va API_PUBLISH_PORT).
 
 services:
   postgres:
@@ -29,6 +35,8 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4000
+    ports:
+      - "127.0.0.1:${API_PUBLISH_PORT:-4000}:4000"
     volumes:
       - api_uploads:/app/apps/api/.local/upload-images
     working_dir: /app/apps/api
@@ -51,8 +59,12 @@ services:
       API_URL: http://api:4000
       AUTH_INTERNAL_ORIGIN: ${AUTH_INTERNAL_ORIGIN:?Set AUTH_INTERNAL_ORIGIN in .env}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:?Set NEXT_PUBLIC_APP_URL in .env}
+    ports:
+      - "127.0.0.1:${WEB_PUBLISH_PORT:-3000}:3000"
 
   caddy:
+    profiles:
+      - tls-caddy
     image: caddy:2-alpine
     restart: unless-stopped
     ports:
