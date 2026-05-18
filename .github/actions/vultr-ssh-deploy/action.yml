@@ -53,7 +53,16 @@ runs:
       env:
         RAW_DP: ${{ inputs.deploy_path }}
       run: |
-        dr=$(printf '%s' "$RAW_DP" | tr -d '\r\n')
+        dr=$(printf '%s' "$RAW_DP" | tr -d '\r\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        if [ -z "$dr" ]; then
+          echo "::error::VULTR_DEPLOY_PATH bo'sh yoki faqat probel. Secrets ga /opt/mebel-erp kabi yo'l yozing."
+          exit 1
+        fi
+        dr="${dr%/}"
+        # Ko‘pchilik secret ga .../deploy yozadi; skript $ROOT/deploy kutadi.
+        case "$dr" in
+          */deploy) dr="${dr%/deploy}"; dr="${dr%/}" ;;
+        esac
         echo "deploy_root=$dr" >> "$GITHUB_OUTPUT"
 
     # Multiline kalitni `key:` orqali berish ba'zan buziladi — fayl + key_path ishonchliroq.
@@ -125,11 +134,15 @@ runs:
           echo "::error::SSH kalit fayli topilmadi (write_ssh_key chiqishi bo'sh)."
           exit 1
         fi
+        if [ -z "${DEPLOY_ROOT:-}" ]; then
+          echo "::error::deploy_root bo'sh — sanitize_paths chiqishi yo'q yoki VULTR_DEPLOY_PATH noto'g'ri."
+          exit 1
+        fi
         shell_quote() { printf '%q' "$1"; }
         {
           printf '%s\n' 'set -euo pipefail'
           printf '%s\n' "ROOT=$(shell_quote "$DEPLOY_ROOT")"
-          printf '%s\n' 'if [ ! -d "$ROOT/deploy" ]; then echo "::error::Deploy path missing on server: $ROOT/deploy"; exit 1; fi'
+          printf '%s\n' 'if [ ! -d "$ROOT/deploy" ]; then echo "::error::Missing $ROOT/deploy on server. VULTR_DEPLOY_PATH should be parent folder (example /opt/mebel-erp), containing deploy/ and docker-compose.prod.yml."; exit 1; fi'
           printf '%s\n' "echo $(shell_quote "$GHCR_TOKEN") | docker login ghcr.io -u $(shell_quote "$GHCR_USERNAME") --password-stdin"
           printf '%s\n' 'cd "$ROOT/deploy"'
           printf '%s\n' 'docker compose -f docker-compose.prod.yml pull'

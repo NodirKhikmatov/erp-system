@@ -161,6 +161,14 @@ jobs:
             echo "::error::VULTR_HOST hech qayerda yo'q. Repository secrets ga qo'shing."
             exit 1
           fi
+          if [ -z "$S_PATH" ] && [ -n "$V_PATH" ]; then
+            echo "::error::VULTR_DEPLOY_PATH Variables da turibdi; Actions deploy secrets.VULTR_DEPLOY_PATH dan o'qiydi — qiymatni Secrets tab ga ko'chiring (masalan /opt/mebel-erp)."
+            exit 1
+          fi
+          if [ -z "$S_PATH" ]; then
+            echo "::error::VULTR_DEPLOY_PATH secrets da yo'q. Actions → Secrets ga qo'shing: ona katalog, masalan /opt/mebel-erp (ichida deploy/ bo'ladi)."
+            exit 1
+          fi
 
       - name: Vultr deploy (Docker dan keyin)
         uses: ./.github/actions/vultr-ssh-deploy
@@ -178,6 +186,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+
+      - name: Sanity check — deploy path secret
+        env:
+          S_PATH: ${{ secrets.VULTR_DEPLOY_PATH }}
+          V_PATH: ${{ vars.VULTR_DEPLOY_PATH }}
+        run: |
+          if [ -z "$S_PATH" ] && [ -n "$V_PATH" ]; then
+            echo "::error::VULTR_DEPLOY_PATH Variables da; Secrets tab ga ko'chiring (masalan /opt/mebel-erp)."
+            exit 1
+          fi
+          if [ -z "$S_PATH" ]; then
+            echo "::error::VULTR_DEPLOY_PATH secrets da yo'q."
+            exit 1
+          fi
 
       - name: Vultr deploy (faqat compose)
         uses: ./.github/actions/vultr-ssh-deploy
