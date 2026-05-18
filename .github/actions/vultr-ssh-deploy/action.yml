@@ -18,16 +18,28 @@ inputs:
 runs:
   using: composite
   steps:
+    - id: sanitize_paths
+      shell: bash
+      env:
+        RAW_DP: ${{ inputs.deploy_path }}
+      run: |
+        dr=$(printf '%s' "$RAW_DP" | tr -d '\r\n')
+        echo "deploy_root=$dr" >> "$GITHUB_OUTPUT"
+
     - name: SSH — compose pull/up
       uses: appleboy/ssh-action@v1
       with:
         host: ${{ inputs.host }}
         username: ${{ inputs.username }}
         key: ${{ inputs.ssh_key }}
-        script_stop: true
         script: |
           set -euo pipefail
+          ROOT="${{ steps.sanitize_paths.outputs.deploy_root }}"
+          if [ -z "$ROOT" ] || [ ! -d "$ROOT/deploy" ]; then
+            echo "::error::Serverda yo'l yo'q yoki deploy papkasi topilmadi: $ROOT/deploy"
+            exit 1
+          fi
           echo "${{ inputs.ghcr_token }}" | docker login ghcr.io -u "${{ inputs.ghcr_username }}" --password-stdin
-          cd "${{ inputs.deploy_path }}/deploy"
+          cd "$ROOT/deploy"
           docker compose -f docker-compose.prod.yml pull
           docker compose -f docker-compose.prod.yml up -d --remove-orphans
