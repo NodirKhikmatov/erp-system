@@ -6,8 +6,14 @@ inputs:
     required: true
   username:
     required: true
+  # PEM multiline yoki bo‘sh (faqat ssh_key_b64 bo‘lsa ham bo‘ladi).
   ssh_key:
-    required: true
+    required: false
+    default: ""
+  # `cat ~/.ssh/vultr_deploy | base64 -w0` (Mac: base64 | tr -d '\n'). Yangi qator yo‘q — kesilish kamayadi.
+  ssh_key_b64:
+    required: false
+    default: ""
   ghcr_token:
     required: true
   ghcr_username:
@@ -24,6 +30,7 @@ runs:
         HOST: ${{ inputs.host }}
         USER: ${{ inputs.username }}
         SSH_KEY: ${{ inputs.ssh_key }}
+        SSH_KEY_B64: ${{ inputs.ssh_key_b64 }}
         GHCR_TOKEN: ${{ inputs.ghcr_token }}
         GHCR_USER: ${{ inputs.ghcr_username }}
         DEPLOY_PATH: ${{ inputs.deploy_path }}
@@ -31,7 +38,7 @@ runs:
         missing=()
         [ -z "$HOST" ]        && missing+=("VULTR_HOST")
         [ -z "$USER" ]        && missing+=("VULTR_USER")
-        [ -z "$SSH_KEY" ]     && missing+=("VULTR_SSH_KEY")
+        [ -z "$SSH_KEY" ] && [ -z "$SSH_KEY_B64" ] && missing+=("VULTR_SSH_KEY yoki VULTR_SSH_KEY_B64")
         [ -z "$GHCR_TOKEN" ]  && missing+=("GHCR_READ_TOKEN")
         [ -z "$GHCR_USER" ]   && missing+=("GHCR_USERNAME")
         [ -z "$DEPLOY_PATH" ] && missing+=("VULTR_DEPLOY_PATH")
@@ -55,23 +62,44 @@ runs:
       shell: bash
       env:
         SSH_KEY: ${{ inputs.ssh_key }}
+        SSH_KEY_B64: ${{ inputs.ssh_key_b64 }}
       run: |
         set -euo pipefail
         keyfile="${RUNNER_TEMP}/vultr_deploy.key"
         write_raw() { printf '%s\n' "$SSH_KEY" | sed 's/\r$//' > "$keyfile"; }
         write_esc() { printf '%b' "$SSH_KEY" | sed 's/\r$//' > "$keyfile"; }
+        write_decode_b64() {
+          printf '%s' "$1" | tr -d '\r\n\t ' | base64 -d > "$keyfile" 2>/dev/null || return 1
+          return 0
+        }
         try_validate() {
           chmod 600 "$keyfile"
           ssh-keygen -y -f "$keyfile" -P '' >/dev/null 2>&1
         }
-        write_raw
-        if ! try_validate; then
-          write_esc
+        ok=1
+        if [ -n "${SSH_KEY_B64:-}" ]; then
+          write_decode_b64 "$SSH_KEY_B64" && try_validate || ok=0
+        else
+          ok=0
         fi
-        if ! try_validate; then
-          echo "::error::VULTR_SSH_KEY OpenSSH kaliti emas yoki buzilgan (ssh-keygen o'qiy olmadi)."
-          echo "::error::GitHub Secret ga ~/.ssh/vultr_deploy ning TO'LIQ ko'chirmasini qo'ying (bir necha qator, -----BEGIN ... -----END ...)."
-          echo "::notice::Diagnostika: bayt=$(wc -c < "$keyfile"), qatorlar=$(wc -l < "$keyfile")"
+        if [ "$ok" -ne 1 ] && [ -n "${SSH_KEY:-}" ]; then
+          write_raw
+          try_validate && ok=1 || ok=0
+        fi
+        if [ "$ok" -ne 1 ] && [ -n "${SSH_KEY:-}" ]; then
+          write_esc
+          try_validate && ok=1 || ok=0
+        fi
+        # Bir qator base64 ni xato PEM Secret ichiga qo‘ygan bo‘lsa
+        if [ "$ok" -ne 1 ] && [ -n "${SSH_KEY:-}" ]; then
+          write_decode_b64 "$SSH_KEY" && try_validate && ok=1 || ok=0
+        fi
+        if [ "$ok" -ne 1 ]; then
+          echo "::error::Kalit o‘qilmadi (ssh-keygen). PEM kesilgan bo‘lishi mumkin — Actions bayt=$(wc -c < "$keyfile"), qatorlar=$(wc -l < "$keyfile")"
+          echo "::error::Yechim: Repository Secret qo‘shing — nomi VULTR_SSH_KEY_B64, qiymati:"
+          echo "::error::  macOS:  base64 -i ~/.ssh/vultr_deploy | tr -d '\n'"
+          echo "::error::  Linux:  base64 -w0 ~/.ssh/vultr_deploy"
+          echo "::error::Yoki VULTR_SSH_KEY ga bir necha qatorli TO‘LIQ PEM (odatda 350+ bayt)."
           exit 1
         fi
         if ! grep -qE 'BEGIN (OPENSSH|RSA|EC) PRIVATE KEY' "$keyfile"; then

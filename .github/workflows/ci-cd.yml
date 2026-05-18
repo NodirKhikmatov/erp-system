@@ -168,6 +168,7 @@ jobs:
           host: ${{ secrets.VULTR_HOST }}
           username: ${{ secrets.VULTR_USER }}
           ssh_key: ${{ secrets.VULTR_SSH_KEY }}
+          ssh_key_b64: ${{ secrets.VULTR_SSH_KEY_B64 }}
           ghcr_token: ${{ secrets.GHCR_READ_TOKEN }}
           ghcr_username: ${{ secrets.GHCR_USERNAME }}
           deploy_path: ${{ secrets.VULTR_DEPLOY_PATH }}
@@ -184,6 +185,7 @@ jobs:
           host: ${{ secrets.VULTR_HOST }}
           username: ${{ secrets.VULTR_USER }}
           ssh_key: ${{ secrets.VULTR_SSH_KEY }}
+          ssh_key_b64: ${{ secrets.VULTR_SSH_KEY_B64 }}
           ghcr_token: ${{ secrets.GHCR_READ_TOKEN }}
           ghcr_username: ${{ secrets.GHCR_USERNAME }}
           deploy_path: ${{ secrets.VULTR_DEPLOY_PATH }}
