@@ -29,13 +29,13 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         with:
           version: 9.15.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "24"
           cache: pnpm
@@ -64,7 +64,7 @@ jobs:
           - dockerfile: apps/web/Dockerfile
             image: mebel-erp-web
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: GHCR image prefix (kichik harf)
         id: scope
@@ -72,7 +72,7 @@ jobs:
           owner_lc=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
           echo "IMAGE=${{ env.REGISTRY }}/${owner_lc}/${{ matrix.image }}" >> "$GITHUB_OUTPUT"
 
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -80,7 +80,7 @@ jobs:
 
       - name: Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ steps.scope.outputs.IMAGE }}
           tags: |
@@ -89,7 +89,7 @@ jobs:
 
       - name: Build and push API
         if: matrix.image == 'mebel-erp-api'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ${{ matrix.dockerfile }}
@@ -99,7 +99,7 @@ jobs:
 
       - name: Build and push Web
         if: matrix.image == 'mebel-erp-web'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ${{ matrix.dockerfile }}
