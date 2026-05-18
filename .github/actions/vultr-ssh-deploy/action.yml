@@ -138,11 +138,24 @@ runs:
           echo "::error::deploy_root bo'sh — sanitize_paths chiqishi yo'q yoki VULTR_DEPLOY_PATH noto'g'ri."
           exit 1
         fi
+        echo "::notice::VULTR_DEPLOY_PATH uzunligi (belgilar): ${#DEPLOY_ROOT}"
+        # ROOT ni base64 bilan uzatamiz — printf '%q' / secret maxsus belgilari muammo bermaydi.
+        ROOT_B64=$(printf '%s' "$DEPLOY_ROOT" | base64 -w0)
         shell_quote() { printf '%q' "$1"; }
         {
           printf '%s\n' 'set -euo pipefail'
-          printf '%s\n' "ROOT=$(shell_quote "$DEPLOY_ROOT")"
-          printf '%s\n' 'if [ ! -d "$ROOT/deploy" ]; then echo "::error::Missing $ROOT/deploy on server. VULTR_DEPLOY_PATH should be parent folder (example /opt/mebel-erp), containing deploy/ and docker-compose.prod.yml."; exit 1; fi'
+          printf '%s\n' "ROOT=\$(printf '%s' '${ROOT_B64}' | base64 -d | tr -d '\r\n')"
+          printf '%s\n' 'if [ ! -d "$ROOT/deploy" ]; then'
+          printf '%s\n' '  echo "::error::Bu SSH serverda deploy papkasi topilmadi — VULTR_HOST yoki VULTR_DEPLOY_PATH ni tekshiring."'
+          printf '%s\n' '  echo "::group::Remote /opt"'
+          printf '%s\n' '  hostname 2>/dev/null || true'
+          printf '%s\n' '  ls -la /opt 2>&1 || true'
+          printf '%s\n' '  echo "::endgroup::"'
+          printf '%s\n' '  echo "::group::Deploy parent dir (if exists)"'
+          printf '%s\n' '  if [ -d "$ROOT" ]; then ls -la "$ROOT" 2>&1; else echo "parent missing"; fi'
+          printf '%s\n' '  echo "::endgroup::"'
+          printf '%s\n' '  exit 1'
+          printf '%s\n' 'fi'
           printf '%s\n' "echo $(shell_quote "$GHCR_TOKEN") | docker login ghcr.io -u $(shell_quote "$GHCR_USERNAME") --password-stdin"
           printf '%s\n' 'cd "$ROOT/deploy"'
           printf '%s\n' 'docker compose -f docker-compose.prod.yml pull'
