@@ -49,12 +49,27 @@ runs:
         dr=$(printf '%s' "$RAW_DP" | tr -d '\r\n')
         echo "deploy_root=$dr" >> "$GITHUB_OUTPUT"
 
+    # Multiline kalitni `key:` orqali berish ba'zan buziladi — fayl + key_path ishonchliroq.
+    - id: write_ssh_key
+      shell: bash
+      env:
+        SSH_KEY: ${{ inputs.ssh_key }}
+      run: |
+        keyfile="${RUNNER_TEMP}/vultr_deploy.key"
+        printf '%s\n' "$SSH_KEY" | sed 's/\r$//' > "$keyfile"
+        chmod 600 "$keyfile"
+        if ! grep -qE 'BEGIN (OPENSSH|RSA|EC) PRIVATE KEY' "$keyfile"; then
+          echo "::error::VULTR_SSH_KEY kaliti noto'g'ri (BEGIN ... PRIVATE KEY yo'q). GitHub Secret ga ~/.ssh/vultr_deploy faylining TO'LIQ matnini qo'ying."
+          exit 1
+        fi
+        echo "path=$keyfile" >> "$GITHUB_OUTPUT"
+
     - name: SSH — compose pull/up
       uses: appleboy/ssh-action@v1
       with:
         host: ${{ inputs.host }}
         username: ${{ inputs.username }}
-        key: ${{ inputs.ssh_key }}
+        key_path: ${{ steps.write_ssh_key.outputs.path }}
         script: |
           set -euo pipefail
           ROOT="${{ steps.sanitize_paths.outputs.deploy_root }}"
