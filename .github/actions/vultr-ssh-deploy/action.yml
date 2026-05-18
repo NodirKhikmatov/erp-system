@@ -1,0 +1,33 @@
+name: Vultr SSH deploy
+description: GHCR ga login va serverda compose pull/up
+
+inputs:
+  host:
+    required: true
+  username:
+    required: true
+  ssh_key:
+    required: true
+  ghcr_token:
+    required: true
+  ghcr_username:
+    required: true
+  deploy_path:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: SSH — compose pull/up
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ inputs.host }}
+        username: ${{ inputs.username }}
+        key: ${{ inputs.ssh_key }}
+        script_stop: true
+        script: |
+          set -euo pipefail
+          echo "${{ inputs.ghcr_token }}" | docker login ghcr.io -u "${{ inputs.ghcr_username }}" --password-stdin
+          cd "${{ inputs.deploy_path }}/deploy"
+          docker compose -f docker-compose.prod.yml pull
+          docker compose -f docker-compose.prod.yml up -d --remove-orphans

@@ -9,7 +9,12 @@ on:
   workflow_dispatch:
     inputs:
       deploy_to_vultr:
-        description: "Vultr VPS — compose pull/up (secrets sozlangan bo‘lishi kerak)"
+        description: "Vultr ga chiqarish — BELGILASH SHART (aks holda deploy bosqichi skipped)"
+        type: boolean
+        required: false
+        default: false
+      skip_ci_docker:
+        description: "Tekshiruv va Docker build ni o'tkazma — faqat Vultr SSH (rasmlar allaqachon GHCR da bo'lishi kerak)"
         type: boolean
         required: false
         default: false
@@ -27,6 +32,7 @@ permissions:
 
 jobs:
   verify:
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.skip_ci_docker != true }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -51,7 +57,7 @@ jobs:
 
   docker:
     needs: verify
-    if: github.event_name != 'pull_request'
+    if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.skip_ci_docker != true) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -110,21 +116,37 @@ jobs:
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
             NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}
 
+  # Yangi rasmlar CI dan keyin serverga
   deploy-vultr:
     needs: docker
-    if: github.event_name == 'workflow_dispatch' && inputs.deploy_to_vultr
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy_to_vultr == true && inputs.skip_ci_docker != true }}
     runs-on: ubuntu-latest
     steps:
-      - name: SSH — compose pull/up
-        uses: appleboy/ssh-action@v1
+      - uses: actions/checkout@v5
+
+      - name: Vultr deploy
+        uses: ./.github/actions/vultr-ssh-deploy
         with:
           host: ${{ secrets.VULTR_HOST }}
           username: ${{ secrets.VULTR_USER }}
-          key: ${{ secrets.VULTR_SSH_KEY }}
-          script_stop: true
-          script: |
-            set -euo pipefail
-            echo "${{ secrets.GHCR_READ_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
-            cd "${{ secrets.VULTR_DEPLOY_PATH }}/deploy"
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+          ssh_key: ${{ secrets.VULTR_SSH_KEY }}
+          ghcr_token: ${{ secrets.GHCR_READ_TOKEN }}
+          ghcr_username: ${{ secrets.GHCR_USERNAME }}
+          deploy_path: ${{ secrets.VULTR_DEPLOY_PATH }}
+
+  # Faqat server — verify/docker o'tkazilgan (rasmlar GHCR da)
+  deploy-vultr-quick:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy_to_vultr == true && inputs.skip_ci_docker == true }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Vultr deploy (quick)
+        uses: ./.github/actions/vultr-ssh-deploy
+        with:
+          host: ${{ secrets.VULTR_HOST }}
+          username: ${{ secrets.VULTR_USER }}
+          ssh_key: ${{ secrets.VULTR_SSH_KEY }}
+          ghcr_token: ${{ secrets.GHCR_READ_TOKEN }}
+          ghcr_username: ${{ secrets.GHCR_USERNAME }}
+          deploy_path: ${{ secrets.VULTR_DEPLOY_PATH }}
