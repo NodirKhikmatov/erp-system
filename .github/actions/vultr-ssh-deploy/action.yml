@@ -18,6 +18,29 @@ inputs:
 runs:
   using: composite
   steps:
+    - id: check_secrets
+      shell: bash
+      env:
+        HOST: ${{ inputs.host }}
+        USER: ${{ inputs.username }}
+        SSH_KEY: ${{ inputs.ssh_key }}
+        GHCR_TOKEN: ${{ inputs.ghcr_token }}
+        GHCR_USER: ${{ inputs.ghcr_username }}
+        DEPLOY_PATH: ${{ inputs.deploy_path }}
+      run: |
+        missing=()
+        [ -z "$HOST" ]        && missing+=("VULTR_HOST")
+        [ -z "$USER" ]        && missing+=("VULTR_USER")
+        [ -z "$SSH_KEY" ]     && missing+=("VULTR_SSH_KEY")
+        [ -z "$GHCR_TOKEN" ]  && missing+=("GHCR_READ_TOKEN")
+        [ -z "$GHCR_USER" ]   && missing+=("GHCR_USERNAME")
+        [ -z "$DEPLOY_PATH" ] && missing+=("VULTR_DEPLOY_PATH")
+        if [ ${#missing[@]} -gt 0 ]; then
+          echo "::error::Yetishmayotgan GitHub Secrets: ${missing[*]}"
+          echo "::error::Repo → Settings → Secrets and variables → Actions → Secrets tab da qo'shing."
+          exit 1
+        fi
+
     - id: sanitize_paths
       shell: bash
       env:
