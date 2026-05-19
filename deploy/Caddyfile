@@ -1,9 +1,12 @@
+# Bitta domen: web + /uploads/* → API (PUBLIC_UPLOAD_BASE_URL shu hostda)
 {$APP_DOMAIN} {
 	encode gzip
-	reverse_proxy web:3000
-}
 
-{$API_DOMAIN} {
-	encode gzip
-	reverse_proxy api:4000
+	handle /uploads/* {
+		reverse_proxy api:4000
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
 }

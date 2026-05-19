@@ -72,7 +72,6 @@ services:
       - "443:443"
     environment:
       APP_DOMAIN: ${APP_DOMAIN:?Set APP_DOMAIN in .env}
-      API_DOMAIN: ${API_DOMAIN:?Set API_DOMAIN in .env}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
